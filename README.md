@@ -32,7 +32,8 @@ The Gold layer contains three views:
 
 ### Star Schema
 
-![Gold Layer Star Schema](Star%20Schema%281%29.png)
+<img width="912" height="462" alt="Star Schema" src="https://github.com/user-attachments/assets/af81a380-5faf-4654-94fc-f43f9071c806" />
+
 
 **Relationships**
 - `gold.fact_sales.customer_key` → `gold.dim_customers.customer_key`
@@ -47,7 +48,10 @@ The Gold layer contains three views:
 
 CRM sales and product/customer records are integrated with ERP product-category, customer birthdate, and customer-country information.
 
-![CRM and ERP Integration Model](integration_Molde%281%29.png)
+## medallion architecture data flow diagram
+
+<img width="1211" height="730" alt="1" src="https://github.com/user-attachments/assets/08942056-fad7-45ca-944b-5199237c6ac4" />
+
 
 ## Tech Stack
 
@@ -62,4 +66,4 @@ CRM sales and product/customer records are integrated with ERP product-category,
 
 SQL ETL · CRM/ERP data integration · Data cleansing · Load automation · Data validation · Star-schema modeling
 
-> **Note:** The diagrams are stored in the repository root. If you place them in another folder, update the image paths above.
+
