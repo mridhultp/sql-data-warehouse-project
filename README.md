@@ -1,67 +1,65 @@
 # SQL Server Data Warehouse
 
-An end-to-end **SQL Server data warehouse** built with T-SQL to integrate CRM and ERP data, automate ingestion, transform data across Bronze and Silver layers, and prepare business-ready Gold views for analytics.
+A SQL Server data warehouse project that integrates CRM and ERP data through **Bronze, Silver, and Gold layers** using T-SQL.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A[CRM CSV Files] --> B[BULK INSERT]
-    C[ERP CSV Files] --> B
-    B --> D[Bronze Layer<br/>Raw Data]
-    D --> E[Silver Layer<br/>Cleaned & Standardized]
-    E --> F[Gold Views<br/>Integrated & Analytics-Ready]
-    F --> G[Reporting / BI]
+    A[CRM CSV Files] --> C[BULK INSERT]
+    B[ERP CSV Files] --> C
+    C --> D[Bronze Layer]
+    D --> E[Silver Layer]
+    E --> F[Gold Views]
+    F --> G[Analytics & Reporting]
 ```
 
-## End-to-End Workflow
+## Workflow
 
-1. **Database setup** — Create `DataWarehouse` and the `bronze`, `silver`, and `gold` schemas.
-2. **Bronze ingestion** — Load six CRM/ERP CSV datasets using `BULK INSERT`.
-3. **Load automation** — Use stored procedures for truncate-and-load refreshes and track load progress and duration.
-4. **Silver transformation** — Clean and standardize data, handle invalid dates and categories, derive product attributes, and add load metadata.
-5. **Gold integration** — Create views that combine refined CRM and ERP data for downstream analytics.
-6. **Validation** — Check duplicates, missing keys, data consistency, and product-key integrity.
+1. **Ingest:** Load CRM and ERP CSV data into Bronze tables using `BULK INSERT`.
+2. **Automate:** Use stored procedures to refresh Bronze data.
+3. **Transform:** Clean and standardize data in Silver tables.
+4. **Integrate:** Create Gold views for customer, product, and sales analysis.
+5. **Validate:** Run SQL checks for duplicates, missing values, inconsistent categories, invalid dates, and sales calculations.
 
 ## Gold Layer Data Model
 
-The Gold layer exposes **views rather than physical tables**:
+The Gold layer contains three views:
 
-- `gold.dim_customer` — Integrated customer dimension using CRM and ERP customer attributes.
-- `gold.dim_products` — Product dimension enriched with product-category information; filters to current products (`prd_end_dt IS NULL`) where applicable.
-- `gold.fact_sales` — Sales fact view joining sales records to customer and product dimensions, with generated surrogate keys for dimensional relationships.
+- **`gold.dim_customers`** — Customer details integrated from CRM customer data and ERP customer/location information.
+- **`gold.dim_products`** — Product details enriched with ERP product category information.
+- **`gold.fact_sales`** — Sales transactions linked to customer and product dimensions.
 
-```mermaid
-flowchart TB
-    C[Silver CRM Customer] --> DC[gold.dim_customer]
-    E[Silver ERP Customer / Location] --> DC
-    P[Silver CRM Product] --> DP[gold.dim_products]
-    CAT[Silver ERP Product Category] --> DP
-    S[Silver CRM Sales] --> FS[gold.fact_sales]
-    DC --> FS
-    DP --> FS
-```
+### Star Schema
 
-*Conceptual relationship diagram. Confirm exact join keys and column names against the SQL scripts.*
+![Gold Layer Star Schema](Star%20Schema%281%29.png)
 
-## Data Quality Checks
+**Relationships**
+- `gold.fact_sales.customer_key` → `gold.dim_customers.customer_key`
+- `gold.fact_sales.product_key` → `gold.dim_products.product_key`
 
-- Duplicate customer and product identifiers
-- Missing or NULL keys
-- Product-key uniqueness and referential integrity
-- Inconsistent categories and whitespace
-- Invalid dates and sales-value consistency
+**Sales calculation:** `sales_amount = quantity * price`
+
+## Source Integration
+
+- **CRM:** `crm_sales_details`, `crm_prd_info`, `crm_cust_info`
+- **ERP:** `erp_px_cat_g1v2`, `erp_cust_az12`, `erp_loc_a101`
+
+CRM sales and product/customer records are integrated with ERP product-category, customer birthdate, and customer-country information.
+
+![CRM and ERP Integration Model](integration_Molde%281%29.png)
 
 ## Tech Stack
 
 - Microsoft SQL Server
-- T-SQL and stored procedures
+- T-SQL
+- Stored procedures
 - `BULK INSERT`
 - Views and dimensional modeling
-- CRM and ERP CSV datasets
+- SQL data-quality checks
 
-## Key Skills Demonstrated
+## Key Skills
 
-SQL-based ETL · Data integration · Data cleansing · Full-load automation · Data quality validation · Dimensional modeling · Fact and dimension views
+SQL ETL · CRM/ERP data integration · Data cleansing · Load automation · Data validation · Star-schema modeling
 
-> **Note:** The setup script may drop and recreate `DataWarehouse`. Run it only in a disposable development environment after confirming that no required data will be lost.
+> **Note:** The diagrams are stored in the repository root. If you place them in another folder, update the image paths above.
